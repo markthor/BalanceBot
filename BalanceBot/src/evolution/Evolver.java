@@ -1,6 +1,10 @@
 package evolution;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import persistence.Genome;
 import persistence.Persistence;
@@ -43,5 +47,25 @@ public class Evolver {
 		throw new UnsupportedOperationException();
 	}
 	
-	
+	private static Map<Genome, Double> getAverageFitnessPerGenome(List<Experiment> experiments) {
+		Map<Genome, List<Long>> genomeFitness = new HashMap<Genome, List<Long>>();
+		for(Experiment e : experiments) {
+			if(genomeFitness.containsKey(e.getGenome())) {
+				genomeFitness.get(e.getGenome()).add(e.getFitness());
+			} else {
+				List<Long> fitness = new ArrayList<Long>();
+				fitness.add(e.getFitness());
+				genomeFitness.put(e.getGenome(), fitness);
+			}
+		
+		}
+		
+		Map<Genome, Double> result = new HashMap<Genome, Double>();
+		
+		for(Entry<Genome, List<Long>> entry : genomeFitness.entrySet()) {
+			// IMPLEMENT
+		}
+		
+		return null;
+	}
 }
