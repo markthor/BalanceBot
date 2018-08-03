@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import controller.Controller;
+import controller.BalanceControllerImplementation;
 import persistence.Genome;
 import persistence.Persistence;
 import util.Log;
@@ -14,7 +16,6 @@ public class Evolver {
 	//Evolution parameters
 	public static final float MUTATION_INTENSITY = 1.0F;
 	public static final int POPULATION_SIZE = 10;
-	public static final int ELITIST_SIZE = 4;
 	
 	public static void main(String[] args) {
 		
@@ -22,8 +23,6 @@ public class Evolver {
 	
 	public static void evolve(int generations) {
 		Log.log("Evolving for " + generations + " with a population size of " + POPULATION_SIZE);
-		Log.logDebug("Mutation intensity = " + MUTATION_INTENSITY);
-		Log.logDebug("Elitist = " + ELITIST_SIZE);
 		
 		List<Experiment> experiments = null;
 		
@@ -34,7 +33,8 @@ public class Evolver {
 			Log.log("Evaluating genomes");
 			experiments = evaluateGenomes(population);
 			
-			Log.log("Persisting genomes");
+			Log.log("Persisting genomes and experiments");
+			Persistence.saveGenomes(population);
 			Persistence.saveExperiments(experiments);
 		}
 	}
@@ -47,25 +47,49 @@ public class Evolver {
 		throw new UnsupportedOperationException();
 	}
 	
+	private static List<Genome> getBestGenomes(List<Experiment> experiments, int numberOfGenomesToReturn) {
+		Map<Genome, Double> averageFitnessPerGenome = getAverageFitnessPerGenome(experiments);
+		
+		for(Entry<Genome, Double> entry : averageFitnessPerGenome.entrySet()) {
+			
+		}
+		
+		throw new UnsupportedOperationException();
+	}
+	
 	private static Map<Genome, Double> getAverageFitnessPerGenome(List<Experiment> experiments) {
 		Map<Genome, List<Long>> genomeFitness = new HashMap<Genome, List<Long>>();
 		for(Experiment e : experiments) {
-			if(genomeFitness.containsKey(e.getGenome())) {
-				genomeFitness.get(e.getGenome()).add(e.getFitness());
-			} else {
+			if(!genomeFitness.containsKey(e.getGenome())) {
 				List<Long> fitness = new ArrayList<Long>();
-				fitness.add(e.getFitness());
 				genomeFitness.put(e.getGenome(), fitness);
 			}
-		
+			genomeFitness.get(e.getGenome()).add(e.getFitness());
 		}
 		
 		Map<Genome, Double> result = new HashMap<Genome, Double>();
 		
 		for(Entry<Genome, List<Long>> entry : genomeFitness.entrySet()) {
-			// IMPLEMENT
+			result.put(entry.getKey(), getAverage(entry.getValue()));
 		}
 		
-		return null;
+		return result;
+	}
+	
+	private static Double getAverage(List<Long> longs) {
+		if(longs.isEmpty()) {
+			throw new IllegalArgumentException("Cannot calculate an average of an empty list");
+		}
+		double result = 0.0;
+		for(Long l : longs) {
+			result += (double) l;
+		}
+		return result / longs.size();
+	}
+	
+	private Controller getController(Genome genome) {
+		Controller balanceController = new BalanceControllerImplementation();
+		balanceController.setGenome(genome);
+		return balanceController;
 	}
 }

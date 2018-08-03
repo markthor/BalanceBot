@@ -13,7 +13,7 @@ import lejos.robotics.RegulatedMotor;
 import lejos.robotics.SampleProvider;
 import persistence.Genome;
 
-public class BalanceControllerImplementation implements BalanceController{
+public class BalanceControllerImplementation extends Controller{
 
 	private static EV3 brick = (EV3) BrickFinder.getLocal();
 	private static RegulatedMotor motor = new EV3LargeRegulatedMotor(MotorPort.A);
@@ -29,14 +29,6 @@ public class BalanceControllerImplementation implements BalanceController{
 	private static int stepMs = 50; // Readjust 20 times per second
 	private static float angleZeroise = 0.75f;
 	private static float speedAmplification = 10.0f;
-	
-	private Genome genome;
-	
-	@Override
-	public void setGenome(Genome genome) {
-		this.genome = genome;
-		
-	}
 
 	@Override
 	public long run() {
@@ -45,11 +37,11 @@ public class BalanceControllerImplementation implements BalanceController{
 		boolean isPressed = true;
 		boolean hasTimeToLift = true;
 		
-		Log.debug("Initializing run on genome: " + genome);
+		Log.debug("Initializing run on genome: " + getGenome());
 		
 		while ((hasTimeToLift && !didLift) || inAir()) {
 			float[] angleAndVelocity = getAngleAndVelocity();
-			float modifiedAngle = angleAndVelocity[0] + (float) genome.getGenes()[0];
+			float modifiedAngle = angleAndVelocity[0] + (float) getGenome().getGenes()[0];
 			float desiredMotorSpeed = getDesiredMotorSpeedByGenome(modifiedAngle, angleAndVelocity[0]);
 			rotateMotor(Math.round(desiredMotorSpeed), modifiedAngle > 0);
 			isPressed = isPressed();
@@ -64,17 +56,20 @@ public class BalanceControllerImplementation implements BalanceController{
 		
 		long fitness = 0;
 		if(!didLift) {
-			fitness = -1;
+			fitness = 0;
 		} else {
 			fitness = System.currentTimeMillis() - startMs;
+			if(fitness < 0) {
+				throw new IllegalStateException("Fitness cannot be negative if EV3 did lift");
+			}
 		}
 		
-		Log.debug("Fitness for genome: " + genome.toString() + " was " + fitness);
+		Log.debug("Fitness for genome: " + getGenome().toString() + " was " + fitness);
 		return fitness;
 	}
 	
 	private float getDesiredMotorSpeedByGenome(float angle, float angularVelocity) {
-		float[] genes = genome.getGenes();
+		float[] genes = getGenome().getGenes();
 		
 		float a = genes[1] * speedAmplification;
 		float b = genes[2] * speedAmplification;
