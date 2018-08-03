@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import controller.Controller;
+import controller.RandomControllerImplmentation;
 import controller.BalanceControllerImplementation;
 import persistence.Genome;
 import persistence.Persistence;
@@ -88,7 +89,7 @@ public class Evolver {
 	}
 	
 	private Controller getController(Genome genome) {
-		Controller balanceController = new BalanceControllerImplementation();
+		Controller balanceController = new RandomControllerImplmentation();
 		balanceController.setGenome(genome);
 		return balanceController;
 	}
