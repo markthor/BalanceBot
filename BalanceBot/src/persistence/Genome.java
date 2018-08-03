@@ -8,8 +8,8 @@ import evolution.Evolver;
 public class Genome {
 	private static Random rng = new Random();
 	private static int numberOfGenes = 4;
-	private int id;
 	private float[] genes;
+	private int hashCode;
 	
 	public Genome() {
 		initialize();
@@ -18,6 +18,10 @@ public class Genome {
 	private void initialize() {
 		genes = new float[numberOfGenes];
 		mutate();
+		
+		for(float f : genes) {
+			hashCode += Float.hashCode(f);
+		}
 	}
 	
 	public void mutate() {
@@ -32,6 +36,11 @@ public class Genome {
 	
 	@Override
 	public String toString() {
-		return "Id = " + id + " Genes = " + Arrays.toString(genes);
+		return "HashCode = " + hashCode + " Genes = " + Arrays.toString(genes);
+	}
+	
+	@Override
+	public int hashCode() {
+		return hashCode();
 	}
 }
