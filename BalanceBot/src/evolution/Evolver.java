@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 
 import controller.Controller;
 import controller.RandomControllerImplmentation;
-import controller.BalanceControllerImplementation;
+import persistence.Experiment;
 import persistence.Genome;
 import persistence.Persistence;
 import util.Log;
@@ -19,15 +19,16 @@ public class Evolver {
 	public static final int POPULATION_SIZE = 10;
 	
 	public static void main(String[] args) {
-		
+		evolve(10);
 	}
 	
 	public static void evolve(int generations) {
 		Log.log("Evolving for " + generations + " with a population size of " + POPULATION_SIZE);
 		
 		List<Experiment> experiments = null;
+		int startFrom = Persistence.getLatestGenerationNumber();
 		
-		for(int generation = 1; generation <= generations; generation++) {
+		for(int generation = startFrom; generation <= generations + startFrom; generation++) {
 			Log.log("Selecting " + POPULATION_SIZE + " genomes for evaluation in generation " + generation);
 			List<Genome> population = getNextGeneration(experiments);
 			
@@ -35,17 +36,28 @@ public class Evolver {
 			experiments = evaluateGenomes(population);
 			
 			Log.log("Persisting genomes and experiments");
-			Persistence.saveGenomes(population);
-			Persistence.saveExperiments(experiments);
+			Persistence.saveObjects(population, generation);
+			Persistence.saveObjects(experiments, generation);
 		}
 	}
 	
 	private static List<Genome> getNextGeneration(List<Experiment> experiments) {
-		throw new UnsupportedOperationException();
+		List<Genome> result = new ArrayList<Genome>();
+		//if(experiments.isEmpty()) {
+			for(int i = 0; i < POPULATION_SIZE; i++) {
+				result.add(new Genome());
+			}
+		///}
+		return result;
 	}
 	
 	private static List<Experiment> evaluateGenomes(List<Genome> genomes) {
-		throw new UnsupportedOperationException();
+		List<Experiment> result = new ArrayList<Experiment>();
+		for(Genome genome : genomes) {
+			long fitness = getController(genome).run();
+			result.add(new Experiment(fitness, genome));
+		}
+		return result;
 	}
 	
 	private static List<Genome> getBestGenomes(List<Experiment> experiments, int numberOfGenomesToReturn) {
@@ -88,7 +100,7 @@ public class Evolver {
 		return result / longs.size();
 	}
 	
-	private Controller getController(Genome genome) {
+	private static Controller getController(Genome genome) {
 		Controller balanceController = new RandomControllerImplmentation();
 		balanceController.setGenome(genome);
 		return balanceController;

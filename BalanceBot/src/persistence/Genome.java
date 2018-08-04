@@ -5,7 +5,7 @@ import java.util.Random;
 
 import evolution.Evolver;
 
-public class Genome {
+public class Genome implements Storable {
 	private static Random rng = new Random();
 	private static int numberOfGenes = 4;
 	private float[] genes;
@@ -41,6 +41,11 @@ public class Genome {
 	
 	@Override
 	public int hashCode() {
-		return hashCode();
+		return hashCode;
+	}
+
+	@Override
+	public String getName() {
+		return getClass().getTypeName();
 	}
 }

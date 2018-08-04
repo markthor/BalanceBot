@@ -10,10 +10,10 @@ public class RandomControllerImplmentation extends Controller {
 	public long run() {
 		float[] genes = getGenome().getGenes();
 		
-		float a = genes[1] * 3;
-		float b = genes[2] * -2;
-		float c = genes[3] * -1;
-		float d = genes[4] * 7;
+		float a = genes[0] * 3;
+		float b = genes[1] * -2;
+		float c = genes[2] * -1;
+		float d = genes[3] * 7;
 		
 		return Math.round(rng.nextGaussian() * a + rng.nextGaussian() * b + rng.nextGaussian() * c + rng.nextGaussian() * d);
 	}

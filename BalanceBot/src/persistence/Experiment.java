@@ -1,10 +1,8 @@
-package evolution;
+package persistence;
 
 import java.util.Date;
 
-import persistence.Genome;
-
-public class Experiment {
+public class Experiment implements Storable {
 	private long fitness;
 	private Genome genome;
 	private Date timeStamp;
@@ -27,5 +25,10 @@ public class Experiment {
 	@Override
 	public String toString() {
 		return "Experiment at " + timeStamp + " for genome " + " resulted in fitness of " + fitness;
+	}
+
+	@Override
+	public String getName() {
+		return getClass().getCanonicalName();
 	}
 }
